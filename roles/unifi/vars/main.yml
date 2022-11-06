@@ -1,0 +1,3 @@
+---
+unifi_key: https://dl.ui.com/unifi/unifi-repo.gpg
+unifi_repo: https://www.ui.com/downloads/unifi/debian

@@ -1,0 +1,22 @@
+---
+- name: Instalación de dependencias
+  apt:
+    name: [ 'apt-transport-https' ]
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Importar llave
+  apt_key:
+    url: "{{ unifi_key }}"
+    state: present
+
+- name: Agregar repo
+  apt_repository:
+    repo: "deb {{ unifi_repo }} stable ubiquiti"
+    state: present
+    update_cache: true
+
+- name: Instalar unifi + dependencias
+  apt:
+    name: [ 'openjdk-8-jre-headless', 'unifi' ]
+

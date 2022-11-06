@@ -1,0 +1,6 @@
+---
+- hosts: unifi
+  become: true
+
+  roles:
+    - unifi
