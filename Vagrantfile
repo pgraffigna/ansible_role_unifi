@@ -1,5 +1,6 @@
 ENV['VAGRANT_DEFAULT_PROVIDER'] = 'libvirt'
 IMAGEN = "generic/ubuntu2004"
+HOSTNAME = "unifi"
 
 Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
@@ -7,7 +8,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.define :server do |s|
     s.vm.box = IMAGEN
-    s.vm.hostname = "unifi"
+    s.vm.hostname = HOSTNAME
     s.vm.box_check_update = false
 
     s.vm.provider :libvirt do |v|

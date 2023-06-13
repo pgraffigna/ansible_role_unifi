@@ -1,5 +1,5 @@
 [unifi]
-192.168.121.168
+192.168.121.79
 
 [unifi:vars]
 ansible_ssh_user=vagrant

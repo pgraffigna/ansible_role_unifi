@@ -1,22 +1,21 @@
 ---
-- name: Instalación de dependencias
-  apt:
-    name: [ 'apt-transport-https' ]
-    update_cache: true
-    cache_valid_time: 3600
+- name: Incluye el archivo con las variables
+  ansible.builtin.include_vars:
+    file: vars_main.yml
 
 - name: Importar llave
-  apt_key:
+  ansible.builtin.apt_key:
     url: "{{ unifi_key }}"
     state: present
 
 - name: Agregar repo
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "deb {{ unifi_repo }} stable ubiquiti"
     state: present
     update_cache: true
 
 - name: Instalar unifi + dependencias
-  apt:
-    name: [ 'openjdk-8-jre-headless', 'unifi' ]
+  ansible.builtin.apt:
+    name: "{{ item }}"
+  with_items: "{{ unifi_packages }}"
 

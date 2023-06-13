@@ -1,6 +1,7 @@
 ---
 - hosts: unifi
   become: true
+  gather_facts: false
 
   roles:
     - unifi
