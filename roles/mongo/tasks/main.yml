@@ -1,0 +1,22 @@
+---
+- name: Incluye el archivo con las variables
+  ansible.builtin.include_vars:
+    file: vars_main.yml
+
+- name: Importar llave
+  ansible.builtin.get_url:
+    url: "{{ mongo_repo_key }}"
+    dest: /etc/apt/trusted.gpg.d/server-3.6.asc
+    mode: '0644'
+    force: true
+
+- name: Agregar repo
+  ansible.builtin.apt_repository:
+    repo: "deb [trusted=yes] {{ mongo_repo_url }} bionic/mongodb-org/3.6 multiverse"
+    state: present
+    filename: "{{ mongo_sources }}"
+    update_cache: true
+
+- name: Instalar dependencias mongo
+  ansible.builtin.apt:
+    deb: "{{ mongo_packages }}"

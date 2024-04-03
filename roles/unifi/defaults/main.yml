@@ -1,2 +1,2 @@
 ---
-unifi_packages: [ 'apt-transport-https', 'openjdk-8-jre-headless', 'unifi' ]
+unifi_packages: [ 'ca-certificates', 'apt-transport-https' ]

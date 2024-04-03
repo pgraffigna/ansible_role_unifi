@@ -4,18 +4,27 @@
     file: vars_main.yml
 
 - name: Importar llave
-  ansible.builtin.apt_key:
-    url: "{{ unifi_key }}"
-    state: present
+  ansible.builtin.get_url:
+    url: "{{ unifi_repo_key }}"
+    dest: /etc/apt/trusted.gpg.d/unifi-repo.gpg
+    mode: '0644'
+    force: true
 
 - name: Agregar repo
   ansible.builtin.apt_repository:
-    repo: "deb {{ unifi_repo }} stable ubiquiti"
+    repo: "deb [ arch=amd64,arm64 ] {{ unifi_repo_url }} stable ubiquiti"
     state: present
+    filename: "{{ unifi_sources }}"
     update_cache: true
 
-- name: Instalar unifi + dependencias
+- name: Instalar dependencias
   ansible.builtin.apt:
     name: "{{ item }}"
+    cache_valid_time: 3600  
   with_items: "{{ unifi_packages }}"
 
+- name: Instalar unifi
+  ansible.builtin.apt:
+    name: unifi
+
+  

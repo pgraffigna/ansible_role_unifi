@@ -1,3 +1,10 @@
 ---
-unifi_key: https://dl.ui.com/unifi/unifi-repo.gpg
-unifi_repo: https://www.ui.com/downloads/unifi/debian
+# unifi
+unifi_repo_key: https://dl.ui.com/unifi/unifi-repo.gpg
+unifi_repo_url: https://www.ui.com/downloads/unifi/debian
+unifi_sources: 100-ubnt-unifi.list
+
+# mongo
+mongo_repo_key: https://www.mongodb.org/static/pgp/server-3.6.asc
+mongo_repo_url: https://repo.mongodb.org/apt/ubuntu
+mongo_sources: mongodb-org-3.6.list
