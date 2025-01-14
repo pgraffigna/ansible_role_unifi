@@ -20,11 +20,10 @@
 - name: Instalar dependencias
   ansible.builtin.apt:
     name: "{{ item }}"
-    cache_valid_time: 3600  
+    cache_valid_time: 3600
   with_items: "{{ unifi_packages }}"
 
 - name: Instalar unifi
   ansible.builtin.apt:
     name: unifi
 
-  

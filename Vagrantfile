@@ -14,6 +14,7 @@ Vagrant.configure("2") do |config|
       v.memory = 2048
       v.cpus = 2
       v.graphics_type = 'none'
+      v.disk_bus = 'virtio'
     end
   end
 end

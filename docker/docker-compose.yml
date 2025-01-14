@@ -1,17 +1,25 @@
 ---
-version: "3.3"
+version: "3.7"
+
+networks:
+  unifi_net:
+    name: unifi_net
 
 services:
   unifi-network-application:
     image: lscr.io/linuxserver/unifi-network-application:latest
     container_name: unifi-controller
+    networks:
+      - unifi_net
+    depends_on:
+      - mongo
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
       - MONGO_USER=unifi_user
       - MONGO_PASS=unifi_pass
-      - MONGO_HOST=unifi-db
+      - MONGO_HOST=mongodb
       - MONGO_PORT=27017
       - MONGO_DBNAME=unifi
     volumes:
@@ -23,10 +31,12 @@ services:
       - 8080:8080
     restart: unless-stopped
 
-  unifi-db:
+  mongo:
     image: docker.io/mongo:latest
-    container_name: unifi-db
+    container_name: mongodb
+    networks:
+      - unifi_net
     volumes:
       - ./unifi/mongo_data:/data/db
-      - ./unifi/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     restart: unless-stopped
