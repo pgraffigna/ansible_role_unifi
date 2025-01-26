@@ -38,11 +38,10 @@ vagrant ssh
 ### Vouchers via API
 ```shell
 # Autenticando contra el controlador
-curl -sk -c /tmp/cookies.txt -X POST https://URL/api/login -H "Content-Type: application/json" \
-		-d '{ "username":USERNAME,"password":PASSWORD}'
+curl -sk -X POST https://URL:8443/api/login -H "Content-Type: application/json" \
+		-d '{ "username":USERNAME,"password":PASSWORD}' -c /tmp/cookies.txt
 
 # Chequeando el estado de los vouchers
-curl -sk -X GET "https://URL:8443/api/s/ID_SITIO/stat/voucher" -H "Content-Type: application/json" \
-    -b /tmp/cookies.txt
+curl -sk -X GET "https://URL:8443/api/s/ID_SITIO/stat/voucher" -H "Content-Type: application/json" -b /tmp/cookies.txt
 ```
 

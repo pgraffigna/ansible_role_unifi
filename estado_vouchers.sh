@@ -1,43 +1,48 @@
 #!/usr/bin/env bash
-#
-# Autor: Pablo Graffigna
-# URL: www.linkedin.com/in/pablo-graffigna
-#
 # sedes
 SEDES=(1 2 3 4 5)
-SEDES_ID=(kt bl ft pc jq)
+SEDES_ID=(kt bl 23 pc jq)
+URL="unifi.home.lab"
+USERNAME=unifi_user
+PASSWORD=unifi_password
 
 # telegram
-API=API_TELEGRAM
-CHAT_ID=CHAT_ID
+API="API"
+CHAT_ID="ID"
 
 # autenticando
-curl -sk -c /tmp/cookies.txt -X POST https://URL/api/login -H "Content-Type: application/json" \
-		-d '{ "username":"USERNAME","password":"PASSWORD"}'
+curl -sk -X POST https://$URL:8443/api/login -H "Content-Type: application/json" \
+		-d '{ "username":"$USERNAME","password":"$PASSWORD"}' -c /tmp/cookies.txt
 
-# Recorrer arrays via el índice
+# recorrer arrays por índices
 for i in "${!SEDES[@]}"; do
-  sede="${SEDES[$i]}"
-  id="${SEDES_ID[$i]}"
+  SEDE="${SEDES[$i]}"
+  ID="${SEDES_ID[$i]}"
 
-  	TTL_VOUCHER=$(curl -sk -X GET "https://URL:8443/api/s/$id/stat/voucher" \
-			-H "Content-Type: application/json" \
-			-b /tmp/cookies.txt | jq | grep 'status_expires' | awk '{print $2}')
+  # info vouchers por sitio
+  STATUS_VOUCHERS=$(curl -sk -X GET "https://$URL:8443/api/s/$ID/stat/voucher" \
+              -H "Content-Type: application/json" \
+              -b /tmp/cookies.txt | jq -c '.data[]')
 
-		CODIGO_VOUCHER=$(curl -sk -X GET "https://URL:8443/api/s/$id/stat/voucher" \
-			-H "Content-Type: application/json" \
-			-b /tmp/cookies.txt | jq | grep 'code' | awk '{print $2}' | tr -d '",')
+  echo "$STATUS_VOUCHERS" | while read -r voucher; do
 
-		DIAS=$(($TTL_VOUCHER / 86400))
-		SEGUNDOS_RESTANTES=$(($TTL_VOUCHER % 86400))
+		# TTL y CODIGO de cada voucher
+  	TTL_VOUCHERS=$(echo "$voucher" | jq '.status_expires')
+    CODIGO_VOUCHERS=$(echo "$voucher" | jq -r '.code')
 
-		HORAS=$((SEGUNDOS_RESTANTES / 3600))
-		SEGUNDOS_RESTANTES=$((SEGUNDOS_RESTANTES % 3600))
+	  DIAS=$(($TTL_VOUCHERS / 86400))
+    SEGUNDOS_RESTANTES=$(($TTL_VOUCHERS % 86400))
 
-		MINUTOS=$((SEGUNDOS_RESTANTES / 60))
-		SEGUNDOS=$((SEGUNDOS_RESTANTES % 60))
+    HORAS=$(($SEGUNDOS_RESTANTES / 3600))
+    SEGUNDOS_RESTANTES=$(($SEGUNDOS_RESTANTES % 3600))
 
-		# enviando mensaje con resultados
-		/usr/bin/curl -F "text=El voucher $CODIGO_VOUCHER de la sede $sede expira en: ${DIAS} días, ${HORAS} horas, ${MINUTOS} minutos y ${SEGUNDOS} segundos." \
-			"https://api.telegram.org/${API}/sendMessage?chat_id=${CHAT_ID}"
+    MINUTOS=$(($SEGUNDOS_RESTANTES / 60))
+    SEGUNDOS=$(($SEGUNDOS_RESTANTES % 60))
+
+    # condición para alertado
+    if [ "$DIAS" -lt 16 ]; then
+      /usr/bin/curl -F "text=El voucher $CODIGO_VOUCHERS de la sede $SEDE expira en: $DIAS días, $HORAS horas, $MINUTOS minutos y $SEGUNDOS segundos." \
+					"https://api.telegram.org/$API/sendMessage?chat_id=$CHAT_ID"
+    fi
+  done
 done
