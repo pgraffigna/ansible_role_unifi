@@ -43,6 +43,8 @@ for i in "${!SEDES[@]}"; do
     if [ "$DIAS" -lt 16 ]; then
       /usr/bin/curl -F "text=El voucher $CODIGO_VOUCHERS de la sede $SEDE expira en: $DIAS días, $HORAS horas, $MINUTOS minutos y $SEGUNDOS segundos." \
 					"https://api.telegram.org/$API/sendMessage?chat_id=$CHAT_ID"
+      /usr/bin/echo -e "To: testing@local.lab\nFrom: noresponder@local.lab\nSubject: [UniFi] Vouchers por expirar\n\nEl voucher $CODIGO_VOUCHERS de la sede $sede expira en: ${DIAS} dias" \
+          | /usr/sbin/ssmtp testing@local.lab
     fi
   done
 done
