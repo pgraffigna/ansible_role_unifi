@@ -1,7 +1,7 @@
 ## ansible_role_unifi
 Ansible rol para instalar un controlador Unifi para gestión de redes wifi.
 
-Testeado con Vagrant + QEMU + ubuntu_22.04.
+Testeado con Vagrant + QEMU + ubuntu_24.04.
 
 ---
 ### Descripción
@@ -24,9 +24,10 @@ ansible-playbook main.yml
 ```
 
 ### Extras
-* Archivo de configuración (Vagrantfile) para desplegar una VM descartable con ubuntu-22.04 con libvirt como hipervisor.
-* Archivo ***.editorconfig*** para configurar los parametros en vscode/vscodium.
-* Carpeta ***docker*** con archivos para desplegar un controlador via docker-compose
+* Archivo de configuración (Vagrantfile) para desplegar una VM descartable con ubuntu-24.04 con libvirt como hipervisor.
+* Archivo ***.editorconfig** para configurar los parametros en vscode/vscodium.
+* Archivos ***docker-compose** para desplegar el controlador unifi en modo de red "bridge" o modo de red "host"
+* Archivo "env" con variables de prueba
 * Script en bash para consultar estado de los vouchers de todos los sitios del controlador.
 
 ### Uso Vagrant (opcional)

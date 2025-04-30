@@ -1,0 +1,106 @@
+services:
+  unifi-db:
+    image: docker.io/mongo:8.0.8-noble
+    container_name: unifi-db
+    hostname: unifi-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASS: ${MONGO_PASS}
+      MONGO_DBNAME: ${MONGO_DBNAME}
+      MONGO_AUTHSOURCE: ${MONGO_AUTHSOURCE}
+    volumes:
+      - mongo_data:/data/db
+      - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    network_mode: host
+    labels:
+      - "diun.enable=true"
+      - "diun.watch_repo=true"
+      - "diun.include_tags=^8.0.(8|[9-9][0-9]*)$"
+      - "autoheal=true"
+
+  unifi:
+    image: lscr.io/linuxserver/unifi-network-application:9.0.114
+    container_name: unifi-app
+    hostname: unifi-app
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Etc/UTC
+      MONGO_USER: ${MONGO_USER}
+      MONGO_PASS: ${MONGO_PASS}
+      MONGO_HOST: localhost
+      MONGO_PORT: ${MONGO_PORT}
+      MONGO_DBNAME: ${MONGO_DBNAME}
+      MONGO_AUTHSOURCE: ${MONGO_AUTHSOURCE}
+    volumes:
+      - unifi_data:/config
+    healthcheck:
+      test: ["CMD", "curl", "-k", "-f", "https://localhost:8443/manage/account/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    depends_on:
+      unifi-db:
+        condition: service_healthy
+    network_mode: host
+    labels:
+      - "diun.enable=true"
+      - "diun.watch_repo=true"
+      - "diun.include_tags=^9.0.(1[1-9]|[1-9][0-9]+)$"
+      - "autoheal=true"
+
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: unifi-autoheal
+    hostname: unifi-autoheal
+    # environment:
+      #- AUTOHEAL_CONTAINER_LABEL=all
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    network_mode: host
+
+  diun:
+    image: crazymax/diun:latest
+    container_name: unifi-diun
+    hostname: unifi-diun
+    command: serve
+    volumes:
+      - diun_data:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      TZ: America/Argentina/Buenos_Aires
+      LOG_LEVEL: info
+      DIUN_WATCH_WORKERS: 20
+      DIUN_WATCH_SCHEDULE: "0 0 0 1 * *" # @monthly - una vez por mes, el primer dia del mes.
+      DIUN_WATCH_JITTER: 30s
+      DIUN_WATCH_RUNONSTARTUP: true
+      DIUN_PROVIDERS_DOCKER: true
+      DIUN_PROVIDERS_DOCKER_WATCHBYDEFAULT: false # prefiero usar labels por contenedor
+      DIUN_NOTIF_TELEGRAM_TOKEN: ${DIUN_NOTIF_TELEGRAM_TOKEN}
+      DIUN_NOTIF_TELEGRAM_CHATIDS: ${DIUN_NOTIF_TELEGRAM_CHATIDS}
+      DIUN_NOTIF_TELEGRAM_TEMPLATEBODY: "Hay una actualización disponible para {{ .Entry.Image }} ejecutandose en el host {{ .Meta.Hostname }}"
+    restart: always
+    network_mode: host
+
+volumes:
+  mongo_data:
+    name: mongo_data
+    driver: local
+  unifi_data:
+    name: unifi_data
+    driver: local
+  diun_data:
+    name: diun_data
+    driver: local
