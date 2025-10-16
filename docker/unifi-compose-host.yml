@@ -1,6 +1,6 @@
 services:
   unifi-db:
-    image: docker.io/mongo:8.0.8-noble
+    image: docker.io/mongo:${MONGO_VERSION}
     container_name: unifi-db
     hostname: unifi-db
     environment:
@@ -28,7 +28,7 @@ services:
       - "autoheal=true"
 
   unifi:
-    image: lscr.io/linuxserver/unifi-network-application:9.0.114
+    image: lscr.io/linuxserver/unifi-network-application:${UNIFI_VERSION}
     container_name: unifi-app
     hostname: unifi-app
     environment:

@@ -8,7 +8,7 @@ MONGO_USER="unifi_user"
 MONGO_PASS="unifi_pass"
 MONGO_DBNAME="unifi_db"
 
-# === INICIO DE SCRIPT ===
+# === SCRIPT ===
 if which mongosh > /dev/null 2>&1; then
   mongo_init_bin='mongosh'
 else
@@ -22,6 +22,8 @@ db.createUser({
   pwd: "${MONGO_PASS}",
   roles: [
     { db: "${MONGO_DBNAME}", role: "dbOwner" },
-    { db: "${MONGO_DBNAME}_stat", role: "dbOwner" }
+    { db: "${MONGO_DBNAME}_stat", role: "dbOwner" },
+    { db: "${MONGO_DBNAME}_audit", role: "dbOwner" }
   ]
 })
+EOF
